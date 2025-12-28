@@ -1,0 +1,76 @@
+============================================================
+GUIA DE INSTALAÇÃO RÁPIDA - PROJETO SGI POLICIAL
+============================================================
+
+Olá! Segue estes passos para colocar o sistema a funcionar no teu computador.
+Como a pasta 'node_modules' é muito pesada, ela não foi incluída e precisa de ser gerada.
+
+PRÉ-REQUISITOS:
+1. Tens de ter o Node.js instalado.
+2. Tens de ter o MongoDB instalado e a correr.
+
+------------------------------------------------------------
+PASSO 1: PREPARAR O BACKEND
+------------------------------------------------------------
+1. Abre a pasta 'backend'.
+2. Clica com o botão direito num espaço vazio e escolhe "Abrir no Terminal" (ou CMD).
+3. Escreve o seguinte comando e dá Enter (isto instala as dependências):
+   
+   npm install
+
+4. Aguarda que termine (vai aparecer uma pasta nova chamada node_modules).
+
+------------------------------------------------------------
+PASSO 2: CRIAR DADOS INICIAIS (BASE DE DADOS)
+------------------------------------------------------------
+Para conseguires entrar, precisas de criar os utilizadores (Comandante, etc).
+Ainda no terminal dentro da pasta 'backend', corre este comando:
+
+   node seed.js
+
+(Se aparecer a mensagem "Utilizadores criados com sucesso!", podes avançar).
+
+------------------------------------------------------------
+PASSO 3: LIGAR O SERVIDOR
+------------------------------------------------------------
+Agora vamos pôr o "motor" a trabalhar. No mesmo terminal:
+
+   npm run dev
+
+Deverás ver: "Servidor Policial a correr na porta 5000" e "MongoDB ligado".
+NÃO FECHES ESTA JANELA DO TERMINAL. Deixa-a aberta.
+
+------------------------------------------------------------
+PASSO 4: UTILIZAR O SISTEMA (FRONTEND)
+------------------------------------------------------------
+1. Vai à pasta 'Frontend_SGI'.
+2. Faz duplo clique no ficheiro 'login.html' para abrir no Browser.
+
+------------------------------------------------------------
+CREDENCIAIS DE ACESSO (PARA TESTES)
+------------------------------------------------------------
+
+Aqui estão os logins para testares os diferentes níveis de acesso:
+
+A) ACESSO TOTAL (ADMINISTRADOR)
+   - User: comandante
+   - Pass: admin123
+   - Permissões: Pode Criar, Editar, Apagar tudo e ver todos os dados.
+
+B) ACESSO SECRETARIADO
+   - User: secretaria
+   - Pass: sec123
+   - Permissões: Pode Criar e Editar, mas NÃO pode Apagar registos.
+
+C) ACESSO PATRULHA (CONSULTA)
+   - User: patrulha01
+   - Pass: patrulha123
+   - Permissões: Apenas leitura. Não consegue criar, editar nem apagar nada.
+
+------------------------------------------------------------
+NOTAS FINAIS
+------------------------------------------------------------
+- Se as fotos não aparecerem no PDF, garante que a pasta 'backend/uploads' existe.
+- Se tiveres algum erro de ligação, verifica se o MongoDB está a correr nos Serviços do Windows.
+
+Bom trabalho!
