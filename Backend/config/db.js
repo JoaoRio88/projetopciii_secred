@@ -1,8 +1,9 @@
+// Backend/config/db.js
 const mongoose = require('mongoose');
 
 const connectDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGOURI);
+    await mongoose.connect(process.env.MONGO_URI); // é ISTO que está a ler
     console.log('MongoDB ligado com sucesso!');
   } catch (error) {
     console.error('Erro ao ligar ao MongoDB', error);
