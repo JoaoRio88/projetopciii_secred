@@ -12,7 +12,6 @@ connectDB();
 app.use(express.json());
 
 // 3. PASTA UPLOADS COM PERMISSÕES ESPECIAIS (CORS)
-// Isto resolve o problema da foto não sair no PDF
 app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
     setHeaders: function (res, path, stat) {
         res.set('Access-Control-Allow-Origin', '*');
@@ -31,19 +30,26 @@ app.use((req, res, next) => {
     next();
 });
 
-// 5. Rotas
+// 5. Rotas da API
 const authRoutes = require('./routes/authRoutes');
 const empresaRoutes = require('./routes/empresaRoutes');
 const individuoRoutes = require('./routes/individuoRoutes');
-
-app.get('/', (req, res) => {
-    res.send('Servidor a funcionar! Tenta as rotas da API.');
-});
 
 app.use('/api/user', authRoutes);
 app.use('/api/empresas', empresaRoutes);
 app.use('/api/individuos', individuoRoutes);
 
-// 6. Iniciar
+// 6. Servir frontend estático
+app.use(express.static(path.join(__dirname, '../Frontend_SGI')));
+
+// 7. Iniciar servidor
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`http://localhost:${PORT}`));
+app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
+
+// Servir frontend (estático)
+app.use(express.static(path.join(__dirname, '../Frontend_SGI')));
+
+// Rota principal SEM wildcard perigoso
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '../Frontend_SGI', 'index.html'));
+});
