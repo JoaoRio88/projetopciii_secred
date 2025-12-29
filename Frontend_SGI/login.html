@@ -2,7 +2,7 @@
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
-    <title>SGI | Login Policial</title>
+    <title>Secred | Login Policial</title>
     <link rel="stylesheet" href="css/style.css">
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 </head>
@@ -35,7 +35,7 @@
             const pass = $('#password').val();
 
             $.ajax({
-                url: 'http://localhost:5000/api/user/login',
+                url: 'https://projetopciii-secred2.onrender.com/api/user/login',
                 method: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify({ username: user, password: pass }),
@@ -43,7 +43,7 @@
                     localStorage.setItem('token', res.token);
                     localStorage.setItem('role', res.role);
                     localStorage.setItem('userNome', res.nome || user);
-                    window.location.href = 'index.html';
+                    window.location.href = 'dashboard/index.html';
                 },
                 error: function(err) {
                     $('#errorMsg').text('Credenciais Inválidas.').fadeIn();
