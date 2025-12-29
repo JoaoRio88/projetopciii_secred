@@ -29,30 +29,31 @@
     </div>
 
     <script>
-        const APIURL = "https://projetopciii-secred2.onrender.com/api";
+    const API_URL = 'https://projetopciii-secred2.onrender.com/api';
 
-                loginForm.onsubmit = function (e) {
-                    e.preventDefault();
+    $('#loginForm').on('submit', function(e) {
+        e.preventDefault();
+        const user = $('#username').val();
+        const pass = $('#password').val();
 
-                const user = $("#username").val();
-                const pass = $("#password").val();
-
-                $.ajax({
-                 url: APIURL + "/user/login",
-                    method: "POST",
-                    contentType: "application/json",
-                    data: JSON.stringify({ username: user, password: pass }),
-                    success: function (res) {
-                    localStorage.setItem("token", res.token);
-                    localStorage.setItem("role", res.role);
-                    localStorage.setItem("userNome", res.nome || user);
-                    window.location.href = "dashboard/index.html";
-                    },
-                    error: function (err) {
-                     $("#errorMsg").text("Credenciais inválidas.").fadeIn();
-                    },
-                });
-                };
-    </script>
+        $.ajax({
+            url: API_URL + '/user/login',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ username: user, password: pass }),
+            success: function(res) {
+                localStorage.setItem('token', res.token);
+                localStorage.setItem('role', res.role);
+                localStorage.setItem('userNome', res.nome || user);
+                window.location.href = 'dashboard/index.html';
+            },
+            error: function(err) {
+                $('#errorMsg').text(
+                  err.responseJSON?.message || 'Credenciais Inválidas.'
+                ).fadeIn();
+            }
+        });
+    });
+</script>
 </body>
 </html>
