@@ -126,70 +126,157 @@
         </div>
     </div>
 
-    <script>
-        if(!localStorage.getItem('token')) window.location.href = 'login.html';
-        $('#agenteNome').text(localStorage.getItem('userNome'));
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script>
+  const APIURL = "https://projetopciii-secred2.onrender.com/api";
 
-        function logout() { localStorage.clear(); window.location.href = 'login.html'; }
-        function openTab(tabId) { $('.tab-content').removeClass('active'); $('.tab-btn').removeClass('active'); $('#' + tabId).addClass('active'); event.target.classList.add('active'); }
-        function previewImage(input) { if (input.files && input.files[0]) { const r = new FileReader(); r.onload = e => $('#imgPreview').attr('src', e.target.result); r.readAsDataURL(input.files[0]); } }
+  if (!localStorage.getItem("token")) {
+    window.location.href = "login.html";
+  }
 
-        function addVeiculo() { $('#lista-veiculos').append(`<div class="item-row"><div><label>Matrícula</label><input type="text" class="v-mat"></div><div><label>Marca</label><input type="text" class="v-marca"></div><div><label>Modelo</label><input type="text" class="v-modelo"></div><div><button type="button" class="btn-remove" onclick="$(this).closest('.item-row').remove()">X</button></div></div>`); }
-        function addBanco() { $('#lista-bancos').append(`<div class="item-row banco-row"><div><label>Banco</label><input type="text" class="b-nome"></div><div><label>IBAN</label><input type="text" class="b-iban"></div><div><button type="button" class="btn-remove" onclick="$(this).closest('.item-row').remove()">X</button></div></div>`); }
-        
-        function addCrime() {
-            const crime = $('#crimeSelector').val();
-            if(!crime) return;
-            $('#lista-crimes').append(`
-                <div class="item-row crime-row">
-                    <input type="text" class="c-nome" value="${crime}" readonly style="background:#1e293b; border:none; color: white;">
-                    <button type="button" class="btn-remove" onclick="$(this).closest('.item-row').remove()">X</button>
-                </div>
-            `);
-            $('#crimeSelector').val(""); 
-        }
+  $("#agenteNome").text(localStorage.getItem("userNome"));
 
-        $('#formCriar').on('submit', function(e) {
-            e.preventDefault();
-            const token = localStorage.getItem('token');
-            const formData = new FormData();
+  function logout() {
+    localStorage.clear();
+    window.location.href = "login.html";
+  }
 
-            formData.append('nome', $('#nome').val());
-            formData.append('nif', $('#nif').val());
-            formData.append('dataNascimento', $('#dataNascimento').val());
-            formData.append('nacionalidade', $('#nacionalidade').val());
-            formData.append('profissao', $('#profissao').val());
-            formData.append('morada', $('#morada').val());
-            formData.append('telefone', $('#telefone').val());
-            
-            // NOVO: Status
-            formData.append('statusOperacional', $('#statusOperacional').val());
+  function openTab(tabId) {
+    $(".tab-content").removeClass("active");
+    $(".tab-btn").removeClass("active");
+    $(tabId).addClass("active");
+    event.target.classList.add("active");
+  }
 
-            const fileInput = $('#fotoInput')[0];
-            if (fileInput.files[0]) formData.append('foto', fileInput.files[0]);
+  function previewImage(input) {
+    if (input.files && input.files[0]) {
+      const r = new FileReader();
+      r.onload = function (e) {
+        $("#imgPreview").attr("src", e.target.result);
+      };
+      r.readAsDataURL(input.files[0]);
+    }
+  }
 
-            const veiculos = [];
-            $('.item-row').has('.v-mat').each(function() { veiculos.push({ matricula: $(this).find('.v-mat').val(), marca: $(this).find('.v-marca').val(), modelo: $(this).find('.v-modelo').val() }); });
-            formData.append('veiculos', JSON.stringify(veiculos));
+  function addVeiculo() {
+    $("#lista-veiculos").append(`
+      <div class="item-row">
+        <div>
+          <label>Matrícula</label>
+          <input type="text" class="v-mat">
+        </div>
+        <div>
+          <label>Marca</label>
+          <input type="text" class="v-marca">
+        </div>
+        <div>
+          <label>Modelo</label>
+          <input type="text" class="v-modelo">
+        </div>
+        <div>
+          <button type="button" class="btn-remove" onclick="this.closest('.item-row').remove()">X</button>
+        </div>
+      </div>
+    `);
+  }
 
-            const contas = [];
-            $('.item-row').has('.b-nome').each(function() { contas.push({ banco: $(this).find('.b-nome').val(), iban: $(this).find('.b-iban').val() }); });
-            formData.append('contasBancarias', JSON.stringify(contas));
+  function addBanco() {
+    $("#lista-bancos").append(`
+      <div class="item-row banco-row">
+        <div>
+          <label>Banco</label>
+          <input type="text" class="b-nome">
+        </div>
+        <div>
+          <label>IBAN</label>
+          <input type="text" class="b-iban">
+        </div>
+        <div>
+          <button type="button" class="btn-remove" onclick="this.closest('.item-row').remove()">X</button>
+        </div>
+      </div>
+    `);
+  }
 
-            // NOVO: Crimes
-            const crimes = [];
-            $('.c-nome').each(function() { crimes.push($(this).val()); });
-            formData.append('crimes', JSON.stringify(crimes));
+  function addCrime() {
+    const crime = $("#crimeSelector").val();
+    if (!crime) return;
 
-            $.ajax({
-                url: 'http://localhost:5000/api/individuos',
-                method: 'POST',
-                headers: { 'auth-token': token },
-                data: formData, processData: false, contentType: false,
-                success: function() { alert('Sucesso!'); window.location.href = 'tblIndividuo.html'; },
-                error: function(xhr) { alert('Erro: ' + xhr.responseText); }
-            });
-        });
-    </script>
+    $("#lista-crimes").append(`
+      <div class="item-row crime-row">
+        <input type="text" class="c-nome" value="${crime}" readonly
+          style="background:#1e293b;border:none;color:white;">
+        <div>
+          <button type="button" class="btn-remove" onclick="this.closest('.item-row').remove()">X</button>
+        </div>
+      </div>
+    `);
+
+    $("#crimeSelector").val("");
+  }
+
+  $("#formCriar").on("submit", function (e) {
+    e.preventDefault();
+
+    const token = localStorage.getItem("token");
+    const formData = new FormData();
+
+    formData.append("nome", $("#nome").val());
+    formData.append("nif", $("#nif").val());
+    formData.append("dataNascimento", $("#dataNascimento").val());
+    formData.append("nacionalidade", $("#nacionalidade").val());
+    formData.append("profissao", $("#profissao").val());
+    formData.append("morada", $("#morada").val());
+    formData.append("telefone", $("#telefone").val());
+    formData.append("statusOperacional", $("#statusOperacional").val());
+
+    const fileInput = $("#fotoInput")[0];
+    if (fileInput.files[0]) {
+      formData.append("foto", fileInput.files[0]);
+    }
+
+    const veiculos = [];
+    $("#lista-veiculos .item-row").has(".v-mat").each(function () {
+      veiculos.push({
+        matricula: $(this).find(".v-mat").val(),
+        marca: $(this).find(".v-marca").val(),
+        modelo: $(this).find(".v-modelo").val(),
+      });
+    });
+    formData.append("veiculos", JSON.stringify(veiculos));
+
+    const contas = [];
+    $("#lista-bancos .item-row").has(".b-nome").each(function () {
+      contas.push({
+        banco: $(this).find(".b-nome").val(),
+        iban: $(this).find(".b-iban").val(),
+      });
+    });
+    formData.append("contasBancarias", JSON.stringify(contas));
+
+    const crimes = [];
+    $("#lista-crimes .c-nome").each(function () {
+      crimes.push($(this).val());
+    });
+    formData.append("crimes", JSON.stringify(crimes));
+
+    $.ajax({
+      url: APIURL + "/individuos",
+      method: "POST",
+      headers: { "auth-token": token },
+      data: formData,
+      processData: false,
+      contentType: false,
+      success: function () {
+        alert("Sucesso!");
+        window.location.href = "tblIndividuo.html";
+      },
+      error: function (xhr) {
+        alert("Erro: " + (xhr.responseText || "Falha ao criar suspeito"));
+      },
+    });
+  });
+</script>
+
 </body>
 </html>

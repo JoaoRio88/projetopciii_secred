@@ -1,0 +1,14 @@
+# Node modules
+Backend/node_modules/
+Frontend_SGI/node_modules/
+
+# Environment files
+Backend/.env
+
+# Logs e cache
+*.log
+.DS_Store
+
+# Outros temporários
+Frontend_SGI/package-lock.json
+Backend/package-lock.json

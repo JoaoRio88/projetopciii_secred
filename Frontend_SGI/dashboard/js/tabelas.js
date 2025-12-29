@@ -1,4 +1,4 @@
-const APIURL = "https://projetopciii-secred2.onrender.com/api";
+const API_URL = "http://localhost:5000/api";
 
 $(document).ready(function () {
   // 1. Verificar Login
@@ -36,7 +36,7 @@ function logout() {
 // --- EMPRESAS ---
 function carregarEmpresas(token, role) {
   $.ajax({
-    url: APIURL + "/empresas",
+    url: `${API_URL}/empresas`,
     method: "GET",
     headers: { "auth-token": token },
     success: function (data) {
@@ -91,7 +91,7 @@ function carregarEmpresas(token, role) {
 // --- INDIVÍDUOS ---
 function carregarIndividuos(token, role) {
   $.ajax({
-    url: APIURL + "/individuos",
+    url: `${API_URL}/individuos`,
     method: "GET",
     headers: { "auth-token": token },
     success: function (data) {
@@ -151,7 +151,7 @@ function apagarItem(tipo, id) {
     return;
 
   $.ajax({
-    url: APIURL + "/" + tipo + "/" + id,
+    url: `${API_URL}/${tipo}/${id}`,
     method: "DELETE",
     headers: { "auth-token": localStorage.getItem("token") },
     success: function () {

@@ -1,4 +1,4 @@
-const APIURL = "https://projetopciii-secred2.onrender.com/api";
+const API_URL = 'http://localhost:5000/api';
 
 $(document).ready(function() {
     checkAuth();
@@ -22,16 +22,10 @@ function logout() {
 
 function loadDashboardData() {
     // Vamos buscar Empresas e Indivíduos em paralelo
-            $.when(
-            $.get({
-                url: APIURL + "/empresas",
-                headers: { "auth-token": localStorage.getItem("token") }
-                }),
-            $.get({
-                url: APIURL + "/individuos",
-                headers: { "auth-token": localStorage.getItem("token") }
-            })
-            ).done(function(respEmpresas, respIndividuos) {
+    $.when(
+        $.get({ url: `${API_URL}/empresas`, headers: { 'auth-token': localStorage.getItem('token') } }),
+        $.get({ url: `${API_URL}/individuos`, headers: { 'auth-token': localStorage.getItem('token') } })
+    ).done(function(respEmpresas, respIndividuos) {
         
         // 1. A resposta do $.when vem em arrays [data, status, xhr]
         const empresas = respEmpresas[0];
