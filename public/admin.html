@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>SECRED | Painel de Administração</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <style>
+        .tabs {
+            display: flex;
+            gap: 10px;
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 30px;
+            padding-bottom: 10px;
+        }
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            padding: 12px 24px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-radius: 6px;
+            transition: 0.3s;
+            position: relative;
+        }
+        .tab-btn:hover {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: var(--accent-blue);
+        }
+        .tab-btn.active {
+            background-color: var(--accent-blue);
+            color: white;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+        .badge-count {
+            background: var(--accent-red);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-left: 8px;
+        }
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .pedido-card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: 0.3s;
+        }
+        .pedido-card:hover {
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+        .pedido-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .pedido-nome {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #0f172a;
+        }
+        .pedido-username {
+            color: var(--accent-blue);
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+        .pedido-status {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .status-pendente {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .status-aprovado {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .status-rejeitado {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .pedido-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .pedido-info {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .pedido-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .pedido-value {
+            font-size: 1rem;
+            color: #0f172a;
+            font-weight: 500;
+        }
+        .pedido-justificacao {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--accent-blue);
+            margin: 15px 0;
+        }
+        .pedido-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .role-selector {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            background: white;
+        }
+        .btn-aprovar {
+            flex: 1;
+            padding: 12px 20px;
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .btn-aprovar:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+        .btn-rejeitar {
+            padding: 12px 20px;
+            background: transparent;
+            color: var(--accent-red);
+            border: 2px solid var(--accent-red);
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .btn-rejeitar:hover {
+            background: var(--accent-red);
+            color: white;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        .modal-header {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 20px;
+        }
+        .password-display {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px dashed var(--accent-blue);
+            text-align: center;
+            margin: 20px 0;
+        }
+        .password-display code {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-blue);
+            letter-spacing: 2px;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #64748b;
+        }
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            stroke: #cbd5e1;
+        }
+    </style>
+</head>
+<body>
+        <div class="sidebar">
+        <div class="logo-container">
+        <img src="img/logo.png" alt="Logo" class="logo-img">
+        <div style="margin-top: 12px; font-size: 0.75rem; color: #64748b; text-transform: uppercase; letter-spacing: 1px;">
+            Agente: <span id="agenteNome" style="color: white; font-weight: bold;">...</span>
+        </div>
+    </div>
+
+        <nav class="nav-menu">
+            <a href="admin.html" class="nav-item active">
+                <svg class="nav-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
+                <span>Administração</span>
+            </a>
+            <a href="index.html" class="nav-item">
+                <svg class="nav-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect>
+                </svg>
+                <span>Dashboard</span>
+            </a>
+
+            <a href="tblEmpresa.html" class="nav-item">
+                <svg class="nav-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 21h18M5 21V7l8-4 8 4v14M8 21v-2a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+                <span>Empresas</span>
+            </a>
+
+            <a href="tblIndividuo.html" class="nav-item">
+                <svg class="nav-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+                <span>Indivíduos</span>
+            </a>
+        </nav>
+
+        <div class="nav-footer">
+            <button onclick="logout()" class="btn-logout">
+                <svg class="nav-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                    <polyline points="16 17 21 12 16 7"></polyline>
+                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                </svg>
+                <span>Terminar Sessão</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="header-section">
+            <h1 class="page-title">Painel de Administração</h1>
+        </div>
+
+        <div class="card">
+            <div class="tabs">
+                <button class="tab-btn active" onclick="openTab('pendentes')">
+                    Pedidos Pendentes <span class="badge-count" id="countPendentes">0</span>
+                </button>
+                <button class="tab-btn" onclick="openTab('historico')">
+                    Histórico Completo
+                </button>
+            </div>
+
+            <div id="pendentes" class="tab-content active">
+                <div id="listaPendentes"></div>
+            </div>
+
+            <div id="historico" class="tab-content">
+                <div id="listaHistorico"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalSucesso" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">✓ Utilizador Criado com Sucesso</div>
+            <p><strong>Username:</strong> <span id="modalUsername"></span></p>
+            <p><strong>Role:</strong> <span id="modalRole"></span></p>
+            <div class="password-display">
+                <p style="margin-bottom: 10px; font-size: 0.9rem; color: #64748b;">Password Temporária:</p>
+                <code id="modalPassword"></code>
+            </div>
+            <p style="color: #64748b; font-size: 0.9rem;">
+                ⚠️ Guarde esta password! O utilizador deve alterá-la no primeiro login.
+            </p>
+            <button class="btn-aprovar" style="width: 100%; margin-top: 20px;" 
+                    onclick="$('#modalSucesso').removeClass('active'); carregarPedidos();">
+                Entendido
+            </button>
+        </div>
+    </div>
+
+    <script>
+    // --- 1. PROTEÇÃO DE ROTA E INICIALIZAÇÃO ---
+    $(document).ready(function() {
+        const token = localStorage.getItem('token');
+        const role = localStorage.getItem('userRole');
+        const nome = localStorage.getItem('userNome');
+
+        // Verificar se está logado
+        if (!token) {
+            window.location.href = 'login.html';
+            return;
+        }
+
+        // Verificar se é admin
+        if (role !== 'admin') {
+            alert('Acesso negado! Apenas administradores podem aceder a esta página.');
+            window.location.href = 'index.html';
+            return;
+        }
+
+        // --- ATUALIZAÇÃO DO NOME DO AGENTE ---
+        // Garante que o nome aparece na sidebar (ID: agenteNome)
+        if (nome) {
+            $('#agenteNome').text(nome);
+        } else {
+            $('#agenteNome').text('Administrador');
+        }
+
+        // Carregar dados iniciais
+        carregarPedidos();
+        
+        // Atualizar automaticamente a cada 30 segundos
+        setInterval(carregarPedidos, 30000);
+    });
+
+    // --- 2. FUNÇÕES DE NAVEGAÇÃO E LOGOUT ---
+    function logout() {
+        localStorage.clear();
+        window.location.href = 'login.html';
+    }
+
+    function openTab(tabId) {
+        $('.tab-content').removeClass('active');
+        $('.tab-btn').removeClass('active');
+        $('#' + tabId).addClass('active');
+        
+        // Correção: Usar o event de forma segura
+        if (window.event) {
+            $(window.event.target).addClass('active');
+        }
+    }
+
+    // --- 3. GESTÃO DE PEDIDOS DE ACESSO ---
+    function carregarPedidos() {
+        const token = localStorage.getItem('token');
+
+        // Pedidos Pendentes
+        $.ajax({
+            url: '/api/acesso/pendentes',
+            method: 'GET',
+            headers: { 'auth-token': token },
+            success: function(pedidos) {
+                $('#countPendentes').text(pedidos.length);
+                
+                if(pedidos.length === 0) {
+                    $('#listaPendentes').html(`
+                        <div class="empty-state">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:48px; opacity:0.5;">
+                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2"/>
+                            </svg>
+                            <h3>Sem pedidos pendentes</h3>
+                            <p>Tudo em dia! Não há novos pedidos para aprovação.</p>
+                        </div>
+                    `);
+                } else {
+                    let html = '';
+                    pedidos.forEach(p => html += renderPedido(p, true));
+                    $('#listaPendentes').html(html);
+                }
+            }
+        });
+
+        // Histórico Total
+        $.ajax({
+            url: '/api/acesso/todos',
+            method: 'GET',
+            headers: { 'auth-token': token },
+            success: function(pedidos) {
+                let html = '';
+                pedidos.forEach(p => html += renderPedido(p, false));
+                $('#listaHistorico').html(html || '<div class="empty-state"><p>Sem histórico de registos.</p></div>');
+            }
+        });
+    }
+
+    function renderPedido(pedido, showActions) {
+        const dataSubmissao = new Date(pedido.dataSubmissao).toLocaleDateString('pt-PT');
+        const dataResposta = pedido.dataResposta ? new Date(pedido.dataResposta).toLocaleDateString('pt-PT') : '-';
+        
+        let statusClass = 'status-pendente';
+        if(pedido.status === 'aprovado') statusClass = 'status-aprovado';
+        if(pedido.status === 'rejeitado') statusClass = 'status-rejeitado';
+
+        let actionsHtml = '';
+        if(showActions) {
+            actionsHtml = `
+                <div class="pedido-actions" style="margin-top:15px; padding-top:15px; border-top: 1px solid #e2e8f0;">
+                    <select class="role-selector" id="role-${pedido._id}" style="padding: 8px; border-radius: 4px; border: 1px solid #cbd5e1; margin-right: 10px;">
+                        <option value="">-- Atribuir Perfil --</option>
+                        <option value="admin">Administrador</option>
+                        <option value="secretariado">Secretariado</option>
+                        <option value="patrulha">Patrulha</option>
+                    </select>
+                    <button class="btn-aprovar" onclick="aprovarPedido('${pedido._id}')" style="background: #22c55e; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer;">
+                        ✓ Aprovar
+                    </button>
+                    <button class="btn-rejeitar" onclick="rejeitarPedido('${pedido._id}')" style="background: #ef4444; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; margin-left: 5px;">
+                        ✗ Rejeitar
+                    </button>
+                </div>
+            `;
+        }
+
+        return `
+            <div class="pedido-card" style="background: white; border-radius: 8px; padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <div class="pedido-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
+                    <div>
+                        <div class="pedido-nome" style="font-weight: bold; font-size: 1.1rem; color: #1e293b;">${pedido.nome}</div>
+                        <div class="pedido-username" style="color: #64748b; font-size: 0.9rem;">@${pedido.username}</div>
+                    </div>
+                    <span class="status-badge ${statusClass}" style="text-transform: uppercase; font-size: 0.75rem; font-weight: bold; padding: 4px 12px; border-radius: 20px;">
+                        ${pedido.status}
+                    </span>
+                </div>
+                
+                <div class="pedido-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; font-size: 0.9rem;">
+                    <div><label style="color: #94a3b8; display: block;">Email</label><strong>${pedido.email || '-'}</strong></div>
+                    <div><label style="color: #94a3b8; display: block;">Telefone</label><strong>${pedido.telefone || '-'}</strong></div>
+                    <div><label style="color: #94a3b8; display: block;">Cargo</label><strong>${pedido.cargo || '-'}</strong></div>
+                    <div><label style="color: #94a3b8; display: block;">Submetido em</label><strong>${dataSubmissao}</strong></div>
+                </div>
+
+                <div class="pedido-justificacao" style="margin-top: 15px; padding: 12px; background: #f8fafc; border-radius: 6px; font-size: 0.9rem;">
+                    <label style="color: #94a3b8; font-weight: bold; display: block; margin-bottom: 5px;">Justificação:</label>
+                    <div style="color: #334155;">${pedido.justificacao}</div>
+                </div>
+
+                ${pedido.adminResponsavel ? `
+                    <div style="margin-top: 15px; font-size: 0.85rem; color: #64748b; border-top: 1px dashed #e2e8f0; pt-10px">
+                        Processado por: <strong>${pedido.adminResponsavel}</strong> em ${dataResposta}
+                        ${pedido.roleAtribuido ? ` | Perfil: <span style="color: #0f172a; font-weight: 600;">${pedido.roleAtribuido}</span>` : ''}
+                    </div>
+                ` : ''}
+                
+                ${actionsHtml}
+            </div>
+        `;
+    }
+
+    // --- 4. ACÇÕES DE APROVAÇÃO/REJEIÇÃO ---
+    function aprovarPedido(id) {
+        const role = $(`#role-${id}`).val();
+        if(!role) {
+            alert('Atenção: Deve selecionar um perfil (Admin, Secretariado ou Patrulha) para este utilizador.');
+            return;
+        }
+
+        if(!confirm('Deseja criar a conta para este utilizador com o perfil ' + role + '?')) return;
+
+        const token = localStorage.getItem('token');
+        $.ajax({
+            url: `/api/acesso/aprovar/${id}`,
+            method: 'PUT',
+            headers: { 'auth-token': token },
+            contentType: 'application/json',
+            data: JSON.stringify({ role }),
+            success: function(response) {
+                // Preencher modal de sucesso com os dados gerados
+                $('#modalUsername').text(response.username);
+                $('#modalRole').text(response.role);
+                $('#modalPassword').text(response.passwordTemp);
+                $('#modalSucesso').addClass('active');
+                carregarPedidos();
+            },
+            error: function(xhr) {
+                alert('Erro na aprovação: ' + (xhr.responseJSON?.message || 'Contacte o suporte técnico.'));
+            }
+        });
+    }
+
+    function rejeitarPedido(id) {
+        if(!confirm('Tem a certeza que deseja rejeitar este pedido de acesso?')) return;
+
+        const token = localStorage.getItem('token');
+        $.ajax({
+            url: `/api/acesso/rejeitar/${id}`,
+            method: 'PUT',
+            headers: { 'auth-token': token },
+            success: function() {
+                alert('Pedido rejeitado e removido da lista pendente.');
+                carregarPedidos();
+            },
+            error: function(xhr) {
+                alert('Erro ao rejeitar: ' + (xhr.responseJSON?.message || 'Erro de rede.'));
+            }
+        });
+    }
+
+    function fecharModal() {
+        $('#modalSucesso').removeClass('active');
+    }
+</script>
+</body>
+</html>

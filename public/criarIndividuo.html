@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="pt">
+  <head>
+    <meta charset="UTF-8" />
+    <title>SECRED | Novo Indivíduo</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="js/order.js"></script>
+    <style>
+      .card {
+        padding: 40px;
+      }
+      .tabs {
+        display: flex;
+        gap: 10px;
+        border-bottom: 1px solid var(--border-color);
+        margin-bottom: 30px;
+        padding-bottom: 10px;
+      }
+      .tab-btn {
+        background: transparent;
+        border: none;
+        color: var(--text-secondary);
+        padding: 12px 24px;
+        cursor: pointer;
+        font-size: 0.95rem;
+        font-weight: 600;
+        border-radius: 6px;
+        text-transform: uppercase;
+        transition: 0.3s;
+      }
+      .tab-btn:hover {
+        background-color: rgba(255, 255, 255, 0.05);
+        color: var(--accent-blue);
+      }
+      .tab-btn.active {
+        background-color: var(--accent-blue);
+        color: white;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        gap: 25px;
+        margin-bottom: 20px;
+      }
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .col-12 {
+        grid-column: span 12;
+      }
+      .col-8 {
+        grid-column: span 8;
+      }
+      .col-6 {
+        grid-column: span 6;
+      }
+      .col-4 {
+        grid-column: span 4;
+      }
+      .col-3 {
+        grid-column: span 3;
+      }
+
+      label {
+        font-size: 0.85rem;
+        color: var(--accent-blue);
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-left: 2px;
+      }
+      input,
+      select {
+        padding: 12px 15px;
+        background-color: #0f172a;
+        border: 1px solid #334155;
+        border-radius: 6px;
+        color: white;
+        font-size: 1rem;
+        transition: border-color 0.3s;
+      }
+      input:focus,
+      select:focus {
+        outline: none;
+        border-color: var(--accent-blue);
+      }
+
+      .lista-container {
+        border-radius: 8px;
+        padding: 20px;
+        border: 1px dashed var(--border-color);
+        min-height: 50px;
+      }
+      .item-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 50px;
+        gap: 15px;
+        align-items: end;
+        background-color: var(--bg-panel);
+        padding: 15px;
+        border-radius: 6px;
+        border: 1px solid var(--border-color);
+      }
+      .crime-row {
+        grid-template-columns: 1fr 50px;
+      }
+      .banco-row {
+        grid-template-columns: 1fr 2fr 50px;
+      }
+
+      .btn-add {
+        background: rgba(16, 185, 129, 0.1);
+        border: 1px solid #10b981;
+        color: #10b981;
+        padding: 10px 20px;
+        cursor: pointer;
+        border-radius: 6px;
+        font-weight: bold;
+        margin-bottom: 15px;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+      }
+      .btn-remove {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+        border: 1px solid #ef4444;
+        width: 100%;
+        height: 45px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: bold;
+      }
+
+      .tab-content {
+        display: none;
+      }
+      .tab-content.active {
+        display: block;
+        animation: fadeIn 0.3s;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="sidebar">
+        <div class="logo-container">
+            <img src="img/logo.png" alt="Logo" class="logo-img">
+            <div style="margin-top: 12px; font-size: 0.75rem; color: #64748b; text-transform: uppercase; letter-spacing: 1px;">
+                Agente: <span id="agenteNome" style="color: white; font-weight: bold;">...</span>
+            </div>
+        </div>
+
+        <nav class="nav-menu">
+            <a href="admin.html" class="nav-item">
+                <svg class="nav-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
+                <span>Administração</span>
+            </a>
+            <a href="index.html" class="nav-item">
+                <svg class="nav-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect>
+                </svg>
+                <span>Dashboard</span>
+            </a>
+
+            <a href="tblEmpresa.html" class="nav-item">
+                <svg class="nav-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 21h18M5 21V7l8-4 8 4v14M8 21v-2a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+                <span>Empresas</span>
+            </a>
+
+            <a href="tblIndividuo.html" class="nav-item active">
+                <svg class="nav-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+                <span>Indivíduos</span>
+            </a>
+        </nav>
+
+        <div class="nav-footer">
+            <button onclick="logout()" class="btn-logout">
+                <svg class="nav-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                    <polyline points="16 17 21 12 16 7"></polyline>
+                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                </svg>
+                <span>Terminar Sessão</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="main-content">
+      <div class="header-section">
+        <h1 class="page-title">Criar Novo Indivíduo</h1>
+      </div>
+
+      <div class="card">
+        <div class="tabs">
+          <button class="tab-btn active" onclick="openTab(event,'geral')">
+            1. Dados Pessoais
+          </button>
+          <button class="tab-btn" onclick="openTab(event,'crimes')">
+            2. Status & Crimes
+          </button>
+          <button class="tab-btn" onclick="openTab(event,'veiculos')">
+            3. Veículos
+          </button>
+          <button class="tab-btn" onclick="openTab(event,'bancos')">
+            4. Bancos
+          </button>
+        </div>
+
+        <form id="formCriar">
+          <!-- TAB: DADOS PESSOAIS -->
+          <div id="geral" class="tab-content active">
+            <!-- FOTO (igual ao editar) -->
+            <div style="text-align: center; margin-bottom: 30px">
+              <div
+                style="
+                  display: flex;
+                  justify-content: center;
+                  gap: 20px;
+                  align-items: center;
+                  flex-direction: column;
+                "
+              >
+                <img
+                  id="previewFoto"
+                  src="img/user.png"
+                  style="
+                    width: 120px;
+                    height: 120px;
+                    border-radius: 50%;
+                    border: 3px solid var(--accent-blue);
+                    object-fit: cover;
+                  "
+                />
+                <input
+                  type="file"
+                  id="fotoInput"
+                  accept="image/*"
+                  onchange="previewImage(this)"
+                  style="color: white"
+                />
+              </div>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-group col-6">
+                <label>Nome Completo *</label>
+                <input
+                  class="create-form"
+                  type="text"
+                  id="nome"
+                  maxlength="100"
+                  minlength="3"
+                  pattern="[a-zA-Zà-úÀ-Ú\s]+"
+                  required
+                />
+                <!-- Apenas letras e espaços, case sensitive, permite acentos -->
+              </div>
+              <div class="form-group col-3">
+                <label>NIF / ID Civil *</label
+                ><input
+                  class="create-form"
+                  type="text"
+                  id="nif"
+                  maxlength="9"
+                  minlength="9"
+                  pattern="\d*"
+                  placeholder="123456789"
+                  required
+                />
+              </div>
+              <div class="form-group col-3">
+                <label>Data Nascimento *</label
+                ><input
+                  class="create-form"
+                  type="date"
+                  id="dataNascimento"
+                  required
+                />
+              </div>
+
+              <div class="form-group col-4">
+                <label>Nacionalidade *</label
+                ><input
+                  class="create-form"
+                  type="text"
+                  id="nacionalidade"
+                  pattern="[a-zA-Zà-úÀ-Ú\s]+"
+                  maxlength="25"
+                  minlength="3"
+                  required
+                />
+              </div>
+              <div class="form-group col-4">
+                <label>Profissão *</label
+                ><input
+                  class="create-form"
+                  type="text"
+                  id="profissao"
+                  minlength="3"
+                  maxlength="35"
+                  pattern="[a-zA-Zà-úÀ-Ú\s]+"
+                  required
+                />
+              </div>
+              <div class="form-group col-4">
+                <label>Estado Civil</label
+                ><input
+                  class="create-form"
+                  type="text"
+                  id="estadoCivil"
+                  pattern="[a-zA-Zà-úÀ-Ú\s]+"
+                  minlength="5"
+                  maxlength="15"
+                />
+              </div>
+
+              <div class="form-group col-6">
+                <label>Morada</label>
+                <input
+                  class="create-form"
+                  type="text"
+                  id="morada"
+                  pattern="[a-zA-Zà-úÀ-Ú0-9\s,.\/ºª\-]+"
+                  minlength="10"
+                  maxlength="100"
+                />
+              </div>
+
+              <div class="form-group col-3">
+                <label>Localidade</label>
+                <input
+                  class="create-form"
+                  pattern="[a-zA-Zà-úÀ-Ú\s]+"
+                  type="text"
+                  id="localidade"
+                  minlength="5"
+                  maxlength="40"
+                />
+              </div>
+
+              <div class="form-group col-3">
+                <label>Código Postal</label>
+                <input
+                  type="text"
+                  id="codPostal"
+                  class="create-form"
+                  pattern="[0-9]{4}-[0-9]{3}"
+                  placeholder="4100-100"
+                  maxlength="8"
+                />
+              </div>
+              <div class="form-group col-4">
+                <label>Telefone</label
+                ><input
+                  type="text"
+                  id="telefone"
+                  class="create-form"
+                  pattern="\d*"
+                  maxlength="9"
+                  minlength="9"
+                  placeholder="912345678"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB: STATUS & CRIMES -->
+          <div id="crimes" class="tab-content">
+            <div class="form-grid">
+              <div class="form-group col-12">
+                <label>Status Operacional Atual</label>
+                <select
+                  id="statusOperacional"
+                  style="
+                    background-color: #1e293b;
+                    color: #fff;
+                    border: 1px solid var(--accent-blue);
+                  "
+                >
+                  <option value="Livre">Livre</option>
+                  <option value="Sob Vigilância">Sob Vigilância</option>
+                  <option value="Procurado">Procurado</option>
+                  <option value="Detido">Detido</option>
+                  <option value="Desaparecido">Desaparecido</option>
+                  <option value="Óbito">Óbito</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="margin-top: 20px">
+              <label style="display: block; margin-bottom: 10px"
+                >Registo Criminal (Adicionar Crimes)</label
+              >
+              <div style="display: flex; gap: 10px; margin-bottom: 15px">
+                <select id="crimeSelector" style="flex: 1">
+                  <option value="">-- Selecionar Crime --</option>
+                  <option>Homicídio</option>
+                  <option>Homicídio Qualificado</option>
+                  <option>Roubo</option>
+                  <option>Furto Qualificado</option>
+                  <option>Tráfico de Estupefacientes</option>
+                  <option>Ofensa à Integridade Física</option>
+                  <option>Violência Doméstica</option>
+                  <option>Burla / Fraude</option>
+                  <option>Condução Ilegal</option>
+                  <option>Posse de Arma Proibida</option>
+                </select>
+                <button
+                  type="button"
+                  class="btn-add"
+                  onclick="addCrime()"
+                  style="margin-bottom: 0"
+                >
+                  + Adicionar
+                </button>
+              </div>
+              <div id="lista-crimes" class="lista-container"></div>
+            </div>
+          </div>
+
+          <!-- TAB: VEÍCULOS -->
+          <div id="veiculos" class="tab-content">
+            <button type="button" class="btn-add" onclick="addVeiculo()">
+              + Associar Viatura
+            </button>
+            <div id="lista-veiculos" class="lista-container"></div>
+          </div>
+
+          <!-- TAB: BANCOS -->
+          <div id="bancos" class="tab-content">
+            <button type="button" class="btn-add" onclick="addBanco()">
+              + Associar Conta
+            </button>
+            <div id="lista-bancos" class="lista-container"></div>
+          </div>
+
+          <!-- AÇÕES -->
+          <div
+            style="
+              margin-top: 40px;
+              padding-top: 20px;
+              border-top: 1px solid var(--border-color);
+              display: flex;
+              justify-content: flex-end;
+              gap: 10px;
+            "
+          >
+            <button
+              type="button"
+              onclick="history.back()"
+              class="btn-action"
+              style="background: #64748b"
+            >
+              Voltar
+            </button>
+            <button type="submit" class="btn-action" style="padding: 15px 40px">
+              Criar Ficha
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      const API_URL = "/api";
+
+      $(document).ready(function () {
+        if (!localStorage.getItem("token")) {
+          window.location.href = "login.html";
+          return;
+        }
+
+        // Se existir na sidebar (depende do teu style.html)
+        const userNome = localStorage.getItem("userNome");
+        if ($("#agenteNome").length) $("#agenteNome").text(userNome || "");
+
+        // Pré-preencher via querystring (nome/nif)
+        const params = new URLSearchParams(window.location.search);
+        const preNome = params.get("nome");
+        const preNif = params.get("nif");
+        if (preNome) $("#nome").val(preNome);
+        if (preNif) $("#nif").val(preNif);
+
+        $("#formCriar").on("submit", function (e) {
+          e.preventDefault();
+          criarIndividuo();
+        });
+      });
+
+      function logout() {
+        localStorage.clear();
+        window.location.href = "login.html";
+      }
+
+      function openTab(e, tabId) {
+        $(".tab-content").removeClass("active");
+        $(".tab-btn").removeClass("active");
+        $("#" + tabId).addClass("active");
+        e.target.classList.add("active");
+      }
+
+      function previewImage(input) {
+        if (input.files && input.files[0]) {
+          const r = new FileReader();
+          r.onload = (e) => $("#previewFoto").attr("src", e.target.result);
+          r.readAsDataURL(input.files[0]);
+        }
+      }
+
+      function addVeiculo() {
+        $("#lista-veiculos").append(`
+        <div class="item-row">
+          <div><label class="lbl-create">Matrícula</label><input type="text" placeholder="Ex: 1234AB" class="v-mat create-form" pattern="[A-Z0-9]+" minlength="2" maxlength="15"></div>
+          <div><label class="lbl-create">Marca</label><input type="text" placeholder="Ex: Ford" class="v-marca create-form" minlength="2" maxlength="25" pattern="[a-zA-Zà-úÀ-Ú\s\-\.&]+"></div>
+          <div><label class="lbl-create">Modelo</label><input type="text" placeholder="Ex: Focus" class="v-modelo create-form" pattern="[a-zA-Z0-9à-úÀ-Ú\s\-\.]+" minlength="2" maxlength="25"></div>
+          <div><button type="button" class="btn-remove" onclick="$(this).closest('.item-row').remove()">X</button></div>
+        </div>
+      `);
+      }
+
+      function addBanco() {
+        $("#lista-bancos").append(`
+        <div class="item-row banco-row">
+          <div><label class="lbl-create">Banco</label><input type="text" placeholder="Ex: Montepio" class="b-nome create-form" pattern="[a-zA-Zà-úÀ-Ú\s\-\.&]+" minlength="3" maxlength="40"></div>
+          <div><label class="lbl-create">IBAN</label><input type="text" placeholder="Ex: PT50123456789012345678901" class="b-iban create-form" minlength="25" maxlength="34" pattern="^[A-Z]{2}[0-9]{2}[A-Z0-9]+$"></div>
+          <div><button type="button" class="btn-remove" onclick="$(this).closest('.item-row').remove()">X</button></div>
+        </div>
+      `);
+      }
+
+      function addCrime() {
+        const crime = $("#crimeSelector").val();
+        if (!crime) return;
+
+        $("#lista-crimes").append(`
+        <div class="item-row crime-row">
+          <input type="text" class="c-nome" value="${crime}" readonly style="background:#1e293b; border:none; color:white;">
+          <button type="button" class="btn-remove" onclick="$(this).closest('.item-row').remove()">X</button>
+        </div>
+      `);
+
+        $("#crimeSelector").val("");
+      }
+
+      function criarIndividuo() {
+        const token = localStorage.getItem("token");
+        const formData = new FormData();
+
+        formData.append("nome", $("#nome").val());
+        formData.append("nif", $("#nif").val());
+        formData.append("dataNascimento", $("#dataNascimento").val());
+        formData.append("nacionalidade", $("#nacionalidade").val());
+        formData.append("profissao", $("#profissao").val());
+        formData.append("estadoCivil", $("#estadoCivil").val());
+        formData.append('morada', $('#morada').val());
+        formData.append('localidade', $('#localidade').val());
+        formData.append('codPostal', $('#codPostal').val());
+        formData.append("telefone", $("#telefone").val());
+        formData.append("statusOperacional", $("#statusOperacional").val());
+
+        const fileInput = $("#fotoInput")[0];
+        if (fileInput && fileInput.files && fileInput.files[0]) {
+          formData.append("foto", fileInput.files[0]);
+        }
+
+        const veiculos = [];
+        $(".item-row")
+          .has(".v-mat")
+          .each(function () {
+            veiculos.push({
+              matricula: $(this).find(".v-mat").val(),
+              marca: $(this).find(".v-marca").val(),
+              modelo: $(this).find(".v-modelo").val(),
+            });
+          });
+        formData.append("veiculos", JSON.stringify(veiculos));
+
+        const contas = [];
+        $(".item-row")
+          .has(".b-nome")
+          .each(function () {
+            contas.push({
+              banco: $(this).find(".b-nome").val(),
+              iban: $(this).find(".b-iban").val(),
+            });
+          });
+        formData.append("contasBancarias", JSON.stringify(contas));
+
+        const crimes = [];
+        $(".c-nome").each(function () {
+          crimes.push($(this).val());
+        });
+        formData.append("crimes", JSON.stringify(crimes));
+
+        $.ajax({
+          url: `${API_URL}/individuos`,
+          method: "POST",
+          headers: { "auth-token": token },
+          data: formData,
+          processData: false,
+          contentType: false,
+          success: function () {
+            alert("Sucesso!");
+            window.location.href = "tblIndividuo.html";
+          },
+          error: function (xhr) {
+            alert("Erro: " + (xhr.responseText || "Falha no pedido"));
+          },
+        });
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>SECRED | Ficha da Organização</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        .card { padding: 40px; }
+        .tabs { display: flex; gap: 10px; border-bottom: 1px solid var(--border-color); margin-bottom: 30px; padding-bottom: 10px; }
+        .tab-btn { background: transparent; border: none; color: var(--text-secondary); padding: 12px 24px; cursor: pointer; font-size: 0.95rem; font-weight: 600; border-radius: 6px; text-transform: uppercase; transition: 0.3s; }
+        .tab-btn:hover { background-color: rgba(255,255,255,0.05); color: white; }
+        .tab-btn.active { background-color: var(--accent-blue); color: white; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
+        .form-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 25px; margin-bottom: 20px; }
+        .form-group { display: flex; flex-direction: column; gap: 8px; }
+        .col-12 { grid-column: span 12; } .col-6 { grid-column: span 6; } .col-4 { grid-column: span 4; } .col-3 { grid-column: span 3; }
+        label { font-size: 0.85rem; color: var(--accent-blue); font-weight: 700; text-transform: uppercase; margin-left: 2px; }
+        input, select { padding: 12px 15px; background-color: #0f172a; border: 1px solid #334155; border-radius: 6px; color: white; font-size: 1rem; }
+        input:disabled, select:disabled { background-color: #1e293b; color: #94a3b8; border-color: #334155; cursor: not-allowed; }
+        .btn-add { background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; color: #10b981; padding: 10px 20px; cursor: pointer; border-radius: 6px; font-weight: bold; margin-bottom: 15px; display: inline-flex; align-items: center; gap: 5px; }
+        .btn-remove { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid #ef4444; width: 100%; height: 45px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .btn-pdf { background-color: #eab308; color: black; border: none; padding: 10px 20px; border-radius: 4px; font-weight: bold; cursor: pointer; margin-right: 10px; }
+        .tab-content { display: none; } .tab-content.active { display: block; animation: fadeIn 0.3s; }
+        .lista-container { border-radius: 8px; padding: 20px; border: 1px dashed var(--border-color); min-height: 50px; }
+        .item-row { display: grid; grid-template-columns: 1fr 1fr 1fr 50px; gap: 15px; align-items: end; background-color: var(--bg-panel); padding: 15px; border-radius: 6px; border: 1px solid var(--border-color); margin-bottom: 10px; }
+        .crime-row { grid-template-columns: 1fr 50px; }
+        .banco-row { grid-template-columns: 1fr 2fr 50px; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="logo-container"><img src="img/logo.png" class="logo-img"></div>
+        <nav class="nav-menu">
+            <a href="index.html" class="nav-item">
+                <svg class="nav-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect>
+                </svg>
+                <span>Dashboard</span>
+            </a>
+
+            <a href="tblEmpresa.html" class="nav-item active">
+                <svg class="nav-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 21h18M5 21V7l8-4 8 4v14M8 21v-2a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+                <span>Empresas</span>
+            </a>
+
+            <a href="tblIndividuo.html" class="nav-item">
+                <svg class="nav-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+                <span>Indivíduos</span>
+            </a>
+        </nav>
+        <div class="nav-footer"><button onclick="logout()" class="btn-logout"><svg class="nav-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg><span>Terminar Sessão</span></button></div>
+    </div>
+
+    <div class="main-content">
+        <div class="header-section"><h1 class="page-title">Ficha Técnica da Empresa</h1></div>
+
+        <div class="card">
+            <div class="tabs">
+                <button class="tab-btn active" onclick="openTab(event,'geral')">1. Dados Gerais</button>
+                <button class="tab-btn" onclick="openTab(event,'socios')">2. Sócios / Gerência</button>
+                <button class="tab-btn" onclick="openTab(event,'crimes')">3. Crimes</button>
+                <button class="tab-btn" onclick="openTab(event,'veiculos')">4. Frota Veículos</button>
+                <button class="tab-btn" onclick="openTab(event,'bancos')">5. Dados Bancários</button>
+            </div>
+
+            <form id="formEditar">
+                <div id="geral" class="tab-content active">
+                    <div style="text-align: center; margin-bottom: 30px;">
+                        <div style="display:flex; justify-content:center; gap:20px; align-items:center; flex-direction: column;">
+                            <img id="previewFoto" src="img/user.png" style="width:120px; height:120px; border-radius:50%; border:3px solid var(--accent-blue); object-fit:cover;">
+                            <input type="file" id="fotoInput" accept="image/*" onchange="previewImage(this)" style="color:white;">
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group col-6"><label>Nome *</label><input type="text" id="nome" class="create-form" pattern="[a-zA-Z0-9à-úÀ-Ú\s\-\.\,]+" minlength="2" maxlength="60" required></div>
+                        <div class="form-group col-3"><label>NIF *</label><input type="text" id="nif" class="create-form" maxlength="9" minlength="9" pattern="\d*" required></div>
+                        <div class="form-group col-3"><label>Capital Social</label><input type="number" id="capitalSocial" min="1" step="1" class="create-form"></div>
+                        <div class="form-group col-6"><label>Morada</label><input type="text" id="morada" class="create-form" pattern="[a-zA-Zà-úÀ-Ú0-9\s,.\-ºª/]+" minlength="10" maxlength="100"></div>
+                        <div class="form-group col-3"><label>Localidade</label><input type="text" id="localidade" class="create-form" pattern="[a-zA-Zà-úÀ-Ú\s]+" minlength="5" maxlength="40"></div>
+                        <div class="form-group col-3"><label>Código Postal</label><input type="text" id="codPostal" class="create-form" pattern="[0-9]{4}-[0-9]{3}" maxlength="8"></div>
+                        <div class="form-group col-6"><label>Email</label><input type="email" id="email" class="create-form"></div>
+                        <div class="form-group col-6"><label>Telefone</label><input type="text" id="telefone" class="create-form" pattern="\d*" maxlength="9" minlength="9"></div>
+                    </div>
+                </div>
+
+                <div id="socios" class="tab-content">
+                    <div class="form-grid">
+                        <div class="form-group col-8">
+                        <label>Procurar indivíduo (Nome ou NIF)</label>
+                        <input type="text" id="socioQuery" placeholder="Escreve pelo menos 2 letras/números">
+                        <div id="socioResultados" class="lista-container" style="margin-top:10px;"></div>
+                        <div id="socioMsg" style="margin-top:10px;"></div>
+                        <button type="button" id="btnCriarIndividuo" class="btn-add" style="display:none;">Criar novo indivíduo</button>
+                        </div>
+                    </div>
+
+                    <div style="margin-top:15px;">
+                        <label>Sócios/Gerentes associados</label>
+                        <div id="lista-socios" class="lista-container"></div>
+                    </div>
+                </div>
+
+
+
+                <div id="crimes" class="tab-content">
+                    <div class="form-grid">
+                        <div class="form-group col-12">
+                            <label>Status da Empresa</label>
+                            <select id="statusOperacional" style="background-color: #1e293b; color: #fff; border: 1px solid var(--accent-blue);">
+                                <option value="Ativa">Ativa</option>
+                                <option value="Sob Investigação">Sob Investigação</option>
+                                <option value="Processo de Insolvência">Processo de Insolvência</option>
+                                <option value="Suspensa">Suspensa</option>
+                                <option value="Encerrada Compulsivamente">Encerrada Compulsivamente</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="margin-top: 20px;">
+                        <label style="display:block; margin-bottom: 10px;">Crimes / Infrações</label>
+                        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                            <select id="crimeSelector" style="flex: 1;">
+                                <option value="">-- Adicionar Infração --</option>
+                                <option>Fraude Fiscal</option>
+                                <option>Branqueamento de Capitais</option>
+                                <option>Falsificação de Documentos</option>
+                                <option>Tráfico de Influências</option>
+                                <option>Crime Ambiental</option>
+                                <option>Exploração Laboral</option>
+                                <option>Tráfico Humano</option>
+                                <option>Corrupção Ativa</option>
+                            </select>
+                            <button type="button" class="btn-add" id="btnAddCrime" onclick="addCrime()" style="margin-bottom:0;">+ Adicionar</button>
+                        </div>
+                        <div id="lista-crimes" class="lista-container"></div>
+                    </div>
+                </div>
+
+                <div id="veiculos" class="tab-content">
+                    <button type="button" class="btn-add" id="btnAddVeiculo" onclick="addVeiculo()">+ Adicionar Veículo</button>
+                    <div id="lista-veiculos" class="lista-container"></div>
+                </div>
+
+                <div id="bancos" class="tab-content">
+                    <button type="button" class="btn-add" id="btnAddBanco" onclick="addBanco()">+ Adicionar Conta</button>
+                    <div id="lista-bancos" class="lista-container"></div>
+                </div>
+
+                <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between;">
+                    <button type="button" onclick="gerarPDF()" class="btn-pdf">📄 Descarregar PDF</button>
+                    <div>
+                        <button type="button" onclick="history.back()" class="btn-action" style="background:#64748b; margin-right: 10px;">Voltar</button>
+                        <button type="submit" id="btnGuardar" class="btn-action">Guardar Alterações</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = '/api';
+        const urlParams = new URLSearchParams(window.location.search);
+        const idEmpresa = urlParams.get('id');
+        const token = localStorage.getItem('token');
+        const role = localStorage.getItem('role');
+        let empresaData = {};
+
+        $(document).ready(function() {
+            if(!token) window.location.href = 'login.html';
+            $('#agenteNome').text(localStorage.getItem('userNome'));
+
+            carregarDados();
+
+            if(role === 'patrulha') {
+                $('input, select').prop('disabled', true);
+                //$('#btnGuardar, #btnAddVeiculo, #btnAddBanco, #btnAddCrime, #fotoInput').hide();
+                $('#socioQuery').prop('disabled', true);
+                $('#btnCriarIndividuo').hide();
+                $('#socioResultados').html('');
+                $('.page-title').text('Ficha Técnica (Modo Leitura)');
+            }
+
+            $('#formEditar').on('submit', function(e) {
+                e.preventDefault();
+                atualizarEmpresa();
+            });
+        });
+
+        function openTab(e, tabId) {
+            $('.tab-content').removeClass('active');
+            $('.tab-btn').removeClass('active');
+            $('#' + tabId).addClass('active');
+            e.target.classList.add('active');
+        }
+        function logout() { 
+            localStorage.clear(); 
+            window.location.href = 'login.html'; 
+        }
+        function previewImage(input) { 
+            if(input.files && input.files[0]) { 
+                const r = new FileReader(); 
+                r.onload = e => $('#previewFoto').attr('src', e.target.result); 
+                r.readAsDataURL(input.files[0]); 
+            } 
+        }
+
+        function addVeiculo(mat='', marca='', mod='') {
+            const btnDel = role === 'patrulha' ? '' : `<button type="button" class="btn-remove" onclick="$(this).closest('.item-row').remove()">X</button>`;
+            const dis = role === 'patrulha' ? 'disabled' : '';
+            $('#lista-veiculos').append(`<div class="item-row"><div><label class="lbl-create">Matrícula</label><input type="text" class="v-mat create-form" pattern="[A-Z0-9]+" minlength="2" maxlength="15" value="${mat}" ${dis}></div><div><label class="lbl-create">Marca</label><input type="text" class="v-marca create-form" minlength="2" maxlength="25" pattern="[a-zA-Zà-úÀ-Ú\s\-\.&]+" value="${marca}" ${dis}></div><div><label class="lbl-create">Modelo</label><input type="text" class="v-modelo create-form" pattern="[a-zA-Z0-9à-úÀ-Ú\s\-\.]+" minlength="2" maxlength="25" value="${mod}" ${dis}></div><div>${btnDel}</div></div>`);
+        }
+
+        function addBanco(nome='', iban='') {
+            const btnDel = role === 'patrulha' ? '' : `<button type="button" class="btn-remove" onclick="$(this).closest('.item-row').remove()">X</button>`;
+            const dis = role === 'patrulha' ? 'disabled' : '';
+            $('#lista-bancos').append(`<div class="item-row banco-row"><div><label class="lbl-create">Banco</label><input type="text" class="b-nome create-form" pattern="^[^0-9]+$" minlength="3" maxlength="40" value="${nome}" ${dis}></div><div><label class="lbl-create">IBAN</label><input type="text" class="b-iban create-form emp-iban-create" minlength="25" maxlength="34" pattern="^[A-Z]{2}[0-9]{2}[A-Z0-9]+$" value="${iban}" ${dis}></div><div>${btnDel}</div></div>`);
+        }
+
+        function addCrime(nome='') {
+            let crime = nome;
+            if(!crime) crime = $('#crimeSelector').val();
+            if(!crime) return;
+            const btnDel = role === 'patrulha' ? '' : `<button type="button" class="btn-remove" onclick="$(this).closest('.item-row').remove()">X</button>`;
+            $('#lista-crimes').append(`<div class="item-row crime-row"><input type="text" class="c-nome" value="${crime}" readonly style="background:#1e293b; border:none; color: white;"><div>${btnDel}</div></div>`);
+            $('#crimeSelector').val(""); 
+        }
+
+        // ---------- SÓCIOS / GERÊNCIA (LIVE SEARCH) ----------
+        let tPesquisaSocio = null;
+        let ultimoQSocio = '';
+
+        $(document).on('input', '#socioQuery', function () {
+        const q = $(this).val().trim();
+        $('#socioMsg').text('');
+        $('#btnCriarIndividuo').hide();
+        clearTimeout(tPesquisaSocio);
+        tPesquisaSocio = setTimeout(() => pesquisarIndividuos(q), 250);
+        });
+
+        function pesquisarIndividuos(q) {
+        if (q.length < 2) {
+            $('#socioResultados').html('');
+            return;
+        }
+        if (q === ultimoQSocio) return;
+        ultimoQSocio = q;
+
+        $.ajax({
+            url: `${API_URL}/individuos/pesquisa?q=${encodeURIComponent(q)}`,
+            method: 'GET',
+            headers: { 'auth-token': token },
+            success: function (lista) {
+            renderResultadosIndividuos(lista, q);
+            },
+            error: function (xhr) {
+            $('#socioMsg').css('color', '#ef4444').text('Erro na pesquisa: ' + xhr.responseText);
+            }
+        });
+        }
+
+        function renderResultadosIndividuos(lista, q) {
+        if (!lista || lista.length === 0) {
+            $('#socioResultados').html('<div style="color:#94a3b8;">Sem resultados.</div>');
+            $('#btnCriarIndividuo').show().data('q', q);
+            return;
+        }
+
+        const html = lista.map(ind => `
+            <div class="item-row socio-res-item"
+                data-id="${ind._id}" data-nome="${(ind.nome || '').replace(/"/g, '&quot;')}" data-nif="${ind.nif || ''}"
+                style="grid-template-columns: 1fr 120px; cursor:pointer;">
+            <div>
+                <strong>${ind.nome}</strong><br>
+                <small>NIF: ${ind.nif}</small>
+            </div>
+            <div style="text-align:right;">
+                <button type="button" class="btn-add" style="margin:0;">Selecionar</button>
+            </div>
+            </div>
+        `).join('');
+
+        $('#socioResultados').html(html);
+        }
+
+        $(document).on('click', '.socio-res-item', function () {
+        const ind = {
+            _id: $(this).data('id'),
+            nome: $(this).data('nome'),
+            nif: $(this).data('nif')
+        };
+        addSocioRow(ind);
+        $('#socioQuery').val('');
+        $('#socioResultados').html('');
+        $('#btnCriarIndividuo').hide();
+        $('#socioMsg').css('color', '#94a3b8').text('');
+        });
+
+        function addSocioRow(ind, funcao = 'SOCIO', percentagem = '') {
+        // Evitar duplicados por ID
+        const jaExiste = $('#lista-socios .socio-id').toArray().some(el => $(el).val() === ind._id);
+        if (jaExiste) return;
+
+        const modoLeitura = (role === 'patrulha');
+        const dis = modoLeitura ? 'disabled' : '';
+        const btnDel = modoLeitura ? '' : `<button type="button" class="btn-remove" onclick="this.closest('.socio-row').remove()">X</button>`;
+
+        const html = `
+            <div class="item-row socio-row" style="grid-template-columns: 1fr 140px 140px 50px;">
+            <div>
+                <strong>${ind.nome}</strong><br>
+                <small>${ind.nif || ''}</small>
+                <input type="hidden" class="socio-id" value="${ind._id}">
+            </div>
+
+            <div>
+                <label>Função</label>
+                <select class="socio-funcao" ${dis}>
+                <option value="SOCIO" ${funcao === 'SOCIO' ? 'selected' : ''}>Sócio</option>
+                <option value="GERENTE" ${funcao === 'GERENTE' ? 'selected' : ''}>Gerente</option>
+                </select>
+            </div>
+
+            <div>
+                <label>%</label>
+                <input type="number" class="socio-percentagem" min="0" max="100" value="${percentagem ?? ''}" ${dis}>
+            </div>
+
+            <div>${btnDel}</div>
+            </div>
+        `;
+
+        $('#lista-socios').append(html);
+        }
+
+        $('#btnCriarIndividuo').on('click', function () {
+        const q = ($(this).data('q') || '').trim();
+        const soNumeros = /^[0-9]+$/.test(q);
+
+        const url = soNumeros
+            ? `criarIndividuo.html?nif=${encodeURIComponent(q)}`
+            : `criarIndividuo.html?nome=${encodeURIComponent(q)}`;
+
+        window.location.href = url;
+        });
+
+        function carregarDados() {
+            $.ajax({
+                url: `${API_URL}/empresas/${idEmpresa}`,
+                method: 'GET',
+                headers: { 'auth-token': token },
+                success: function(data) {
+                    empresaData = data;
+                    $('#nome').val(data.nome);
+                    $('#nif').val(data.nif);
+                    $('#capitalSocial').val(data.capitalSocial);
+                    $('#morada').val(data.morada);
+                    $('#localidade').val(data.localidade);
+                    $('#codPostal').val(data.codPostal);
+                    $('#email').val(data.email);
+                    $('#telefone').val(data.telefone);
+                    if(data.fotoUrl) $('#previewFoto').attr('src', data.fotoUrl);
+                    if(data.statusOperacional) $('#statusOperacional').val(data.statusOperacional);
+
+                    if(data.veiculos) data.veiculos.forEach(v => addVeiculo(v.matricula, v.marca, v.modelo));
+                    if(data.contasBancarias) data.contasBancarias.forEach(b => addBanco(b.banco, b.iban));
+                    if(data.crimes) data.crimes.forEach(c => addCrime(c));
+                    
+                    // Sócios / Gerência
+                    $('#lista-socios').html('');
+                        if (data.sociosGerentes && data.sociosGerentes.length > 0) {
+                        data.sociosGerentes.forEach(s => {
+                            const ind = (s.individuo && typeof s.individuo === 'object')
+                            ? { _id: s.individuo._id, nome: s.individuo.nome, nif: s.individuo.nif }
+                            : { _id: s.individuo, nome: '(Indivíduo)', nif: '' };
+
+                            addSocioRow(ind, s.funcao, s.percentagem);
+                        });
+                    }
+
+                },
+                error: function() { alert('Erro ao carregar ficha.'); }
+            });
+        }
+
+        function atualizarEmpresa() {
+            const formData = new FormData();
+            formData.append('nome', $('#nome').val());
+            formData.append('nif', $('#nif').val());
+            formData.append('capitalSocial', $('#capitalSocial').val());
+            formData.append('morada', $('#morada').val());
+            formData.append('localidade', $('#localidade').val());
+            formData.append('codPostal', $('#codPostal').val());
+            formData.append('email', $('#email').val());
+            formData.append('telefone', $('#telefone').val());
+            formData.append('statusOperacional', $('#statusOperacional').val());
+
+            const fileInput = $('#fotoInput')[0];
+            if(fileInput.files[0]) formData.append('foto', fileInput.files[0]);
+
+            const veiculos = []; $('.item-row').has('.v-mat').each(function() { veiculos.push({ matricula: $(this).find('.v-mat').val(), marca: $(this).find('.v-marca').val(), modelo: $(this).find('.v-modelo').val() }); });
+            formData.append('veiculos', JSON.stringify(veiculos));
+
+            const contas = []; $('.item-row').has('.b-nome').each(function() { contas.push({ banco: $(this).find('.b-nome').val(), iban: $(this).find('.b-iban').val() }); });
+            formData.append('contasBancarias', JSON.stringify(contas));
+
+            const crimes = []; $('.c-nome').each(function() { crimes.push($(this).val()); });
+            formData.append('crimes', JSON.stringify(crimes));
+
+            const sociosGerentes = [];
+            $('#lista-socios .socio-row').each(function () {
+            sociosGerentes.push({
+                individuo: $(this).find('.socio-id').val(),
+                funcao: $(this).find('.socio-funcao').val(),
+                percentagem: Number($(this).find('.socio-percentagem').val() || 0)
+            });
+            });
+            formData.append('sociosGerentes', JSON.stringify(sociosGerentes));
+
+
+
+            $.ajax({
+                url: `${API_URL}/empresas/${idEmpresa}`,
+                method: 'PUT',
+                headers: { 'auth-token': token },
+                data: formData, processData: false, contentType: false,
+                success: function() { alert('Atualizado!'); window.location.href = 'tblEmpresa.html'; },
+                error: function(xhr) { alert('Erro: ' + xhr.responseText); }
+            });
+        }
+
+        // FUNÇÃO AUXILIAR IMAGEM
+        function getBase64ImageFromURL(url) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.setAttribute("crossOrigin", "anonymous");
+                img.onload = () => {
+                    const canvas = document.createElement("canvas");
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const ctx = canvas.getContext("2d");
+                    ctx.drawImage(img, 0, 0);
+                    resolve(canvas.toDataURL("image/jpeg"));
+                };
+                img.onerror = error => reject(error);
+                img.src = url;
+            });
+        }
+
+        // GERAR PDF COM LOGO
+        async function gerarPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            let y = 20;
+
+            if (empresaData.fotoUrl) {
+                try {
+                    const imgData = await getBase64ImageFromURL(empresaData.fotoUrl);
+                    doc.addImage(imgData, 'JPEG', 150, 15, 40, 40); 
+                    doc.setDrawColor(0);
+                    doc.rect(150, 15, 40, 40); 
+                } catch (err) { console.log(err); }
+            } else {
+                doc.setDrawColor(150);
+                doc.rect(150, 15, 40, 40);
+                doc.setFontSize(8);
+                doc.text("Sem Logo", 160, 35);
+            }
+
+            doc.setFontSize(22); doc.setTextColor(40, 40, 40); doc.text("SECRED", 20, 25);
+            doc.setFontSize(14); doc.setTextColor(100); doc.text("FICHA DA EMPRESA", 20, 32);
+            doc.setFontSize(10); doc.text("ID: " + idEmpresa, 20, 40);
+            
+            y = 65; 
+            doc.setLineWidth(0.5); doc.setDrawColor(200); doc.line(20, y, 190, y); y += 10;
+
+            doc.setFontSize(14); doc.setTextColor(0); doc.text("1. DADOS GERAIS", 20, y); y += 10;
+            doc.setFontSize(11); doc.setTextColor(50);
+            
+            doc.text(`Nome: ${empresaData.nome || '-'}`, 20, y); y += 7;
+            doc.text(`NIF: ${empresaData.nif || '-'}`, 20, y); y += 7;
+            doc.text(`Morada: ${empresaData.morada || '-'}`, 20, y); y += 15;
+
+            doc.setFontSize(14); doc.setTextColor(0); doc.text("2. LEGAL & CRIMES", 20, y); y += 10;
+            doc.setFontSize(11); 
+            doc.setTextColor(220, 38, 38); doc.text(`STATUS: ${empresaData.statusOperacional || 'Ativa'}`, 20, y); y += 10;
+            doc.setTextColor(50);
+            
+            if(empresaData.crimes && empresaData.crimes.length > 0) {
+                empresaData.crimes.forEach(c => { doc.text(`- ${c}`, 30, y); y += 6; });
+            } else { doc.text("- Sem infrações.", 30, y); y += 6; }
+            y += 5;
+
+            // (Opcional mas recomendado) Função para evitar cortar texto no fim da página
+            function checkPageBreak(doc, y) {
+            if (y > 270) { doc.addPage(); return 20; }
+            return y;
+            }
+
+            //--- 3. SÓCIOS GERÊNCIA ---
+            empresaData.sociosGerentes.forEach(s => {
+            y = checkPageBreak(doc, y)
+            
+            const ind = (typeof s.individuo === 'object') ? s.individuo : { nome: 'N/A', nif: '-', dataNascimento: '', morada: '', telefone: '' }
+            const nome = ind.nome || 'N/A'
+            const nif = ind.nif || '-'
+            const dataNasc = ind.dataNascimento ? new Date(ind.dataNascimento).toLocaleDateString('pt-PT') : 'N/A'
+            const morada = ind.morada || 'N/A'
+            const telefone = ind.telefone || 'N/A'
+            const funcao = s.funcao || '-'
+            
+            doc.setTextColor(50)
+            doc.setFontSize(11)
+            doc.text(`${funcao} - ${nome}`, 30, y)
+            y += 7
+            
+            doc.setTextColor(100)
+            doc.setFontSize(10)
+            doc.text(`NIF: ${nif}`, 35, y)
+            y += 6
+            doc.text(`Nascimento: ${dataNasc}`, 35, y)
+            y += 6
+            doc.text(`Morada: ${morada}`, 35, y)
+            y += 6
+            doc.text(`Telefone: ${telefone}`, 35, y)
+            y += 8
+            })
+
+
+
+            doc.setFontSize(14); doc.setTextColor(0); doc.text("3. PATRIMÓNIO", 20, y); y += 10;
+            doc.setFontSize(11); doc.setTextColor(50);
+            doc.text("Frota:", 20, y); y += 7;
+            if(empresaData.veiculos) empresaData.veiculos.forEach(v => { doc.text(`- ${v.marca} ${v.modelo} (${v.matricula})`, 30, y); y += 6; });
+            
+            doc.save(`Organizacao_${empresaData.nif}.pdf`);
+        }
+    </script>
+</body>
+</html>
